@@ -11,7 +11,7 @@
 > This Power BI report answers it — how much, where, and whether it's getting worse.
 
 **[▶ View the live dashboard](https://app.powerbi.com/view?r=eyJrIjoiNjI0NGJjOTAtYzFkMC00M2NmLThiN2MtMjNhZjNmZWIyN2RkIiwidCI6IjQ2YWNkMjk2LTczMGQtNDVlNy1iNWQ2LTMyY2M4NzE2ZmNjYiJ9)** · [PDF report](report/Inventory_Aging_Report.pdf) · [Power BI file (.pbix)](report/Inventory_Aging_Analysis.pbix)
-
+·![Overview][assests/Overview.png]
 ---
 
 ## Dashboard preview
