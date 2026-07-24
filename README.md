@@ -139,7 +139,7 @@ Power BI Desktop · DAX · Power Query · Excel · Python (synthetic data genera
 
 ## How to explore
 
-1. Open the [live dashboard](https://app.powerbi.com/view?r=eyJrIjoiNjI0NGJjOTAtYzFkMC00M2NmLThiN2MtMjNhZjNmZWIyN2RkIiwidCI6IjQ2YWNkMjk2LTczMGQtNDVlNy1iNWQ2LTMyY2M4NzE2ZmNjYiJ9), or the [PDF](assests/2-Overview.pdf).
+1. Open the [live dashboard](https://app.powerbi.com/view?r=eyJrIjoiNjI0NGJjOTAtYzFkMC00M2NmLThiN2MtMjNhZjNmZWIyN2RkIiwidCI6IjQ2YWNkMjk2LTczMGQtNDVlNy1iNWQ2LTMyY2M4NzE2ZmNjYiJ9), or the [PDF](assests/2-With_all_essentional_Variation.pdf).
 2. To inspect the model and DAX, open `report/Inventory_Aging_Analysis.pbix` in Power BI Desktop.
 3. To regenerate the data, run `python scripts/generate_inventory.py`.
 
