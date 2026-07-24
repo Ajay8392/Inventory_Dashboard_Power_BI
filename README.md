@@ -3,20 +3,31 @@
 ![Power BI](https://img.shields.io/badge/Power%20BI-F2C811?logo=powerbi&logoColor=black)
 ![DAX](https://img.shields.io/badge/DAX-2C2C2C)
 ![Power Query](https://img.shields.io/badge/Power%20Query-376A9E)
-![Excel](https://img.shields.io/badge/Excel-217346?logo=microsoftexcel&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
 ![Data](https://img.shields.io/badge/Data-Synthetic-lightgrey)
 
 > The question every COO dreads: **how much of our cash is frozen in stock that isn't moving?**
 > This Power BI report answers it — how much, where, and whether it's getting worse.
 
-**[▶ View the live dashboard](https://app.powerbi.com/view?r=eyJrIjoiNjI0NGJjOTAtYzFkMC00M2NmLThiN2MtMjNhZjNmZWIyN2RkIiwidCI6IjQ2YWNkMjk2LTczMGQtNDVlNy1iNWQ2LTMyY2M4NzE2ZmNjYiJ9)** · [PDF report](report/Inventory_Aging_Report.pdf) · [Power BI file (.pbix)](report/Inventory_Aging_Analysis.pbix)
-·![Overview][assests/Overview.png]
+**[▶ View the live interactive dashboard](https://app.powerbi.com/view?r=eyJrIjoiNjI0NGJjOTAtYzFkMC00M2NmLThiN2MtMjNhZjNmZWIyN2RkIiwidCI6IjQ2YWNkMjk2LTczMGQtNDVlNy1iNWQ2LTMyY2M4NzE2ZmNjYiJ9)**
+
 ---
 
 ## Dashboard preview
 
-[View the Dashboard (PDF)](assests/1-Overview.pdf)
+**Page 1 — Overview** · [open as PDF](assests/1-Overview.pdf)
+
+![Overview page](assests/1-Overview.png)
+
+KPI cards (total value, dead stock, new vs consumed lots), an aging bar chart with 90+ in red,
+value by material stage, value by plant (treemap), and a value-vs-age bubble scatter with a
+90-day dead-stock line.
+
+**Page 2 — Aging detail** · [open as PDF](assests/2-Detailed_Overview.pdf)
+
+![Aging detail matrix](assests/2-Detailed_Overview.png)
+
+A plant → storage-location matrix showing **Last Week / This Week / Variance** for every aging
+bucket, with red/green movement icons so worsening stock is obvious at a glance.
 
 ---
 
@@ -50,20 +61,6 @@ write-off time? The answers are usually buried across ERP reports, not sitting i
 - **Chennai – Finished Goods Store** holds the largest single dead-stock pile (~₹8.3 Cr in 90+).
 - Weekly movement: **30 lots** received, **30** consumed/dispatched, **470** carried over.
 
-## Dashboard walkthrough
-
-**Page 1 — Overview**
-KPI cards (total value, dead stock, new vs consumed lots), an aging bar chart with 90+ in red,
-value by material stage, value by plant (treemap), and a value-vs-age bubble scatter with a
-90-day dead-stock line.
-
-**Page 2 — Aging detail**
-
-![Aging detail matrix](assets/aging-detail-matrix.png)
-
-A plant → storage-location matrix showing **Last Week / This Week / Variance** for every aging
-bucket, with red/green movement icons so worsening stock is obvious at a glance.
-
 ## Data & data model
 
 The report runs on a single combined table stacking two weekly snapshots
@@ -75,7 +72,7 @@ The report runs on a single combined table stacking two weekly snapshots
 | Column | Meaning | Example |
 |--------|---------|---------|
 | Batch Number | Stock lot / batch (SAP `CHARG`) | `0000524188` |
-| Item Code | Material number (`MATNR`), ranged by type | `10004521` |
+| Item Code | Material number (`MATNR`) | `10004521` |
 | Item Description | Material short text (`MAKTX`) | `COPPER WINDING WIRE 1.20MM ETP` |
 | UOM | Base unit of measure (`MEINS`) | `KG`, `EA`, `M` |
 | Item Qty. | Quantity in stock | `1,250` |
@@ -94,6 +91,10 @@ The report runs on a single combined table stacking two weekly snapshots
 ```dax
 Total Value = SUM ( 'Inventory'[Value in INR] )
 
+Value This Week = CALCULATE ( [Total Value], 'Inventory'[Week Type] = "Current Week" )
+Value Last Week = CALCULATE ( [Total Value], 'Inventory'[Week Type] = "Last Week" )
+Variance        = [Value This Week] - [Value Last Week]
+
 Dead Stock Value =
 CALCULATE (
     [Total Value],
@@ -101,9 +102,13 @@ CALCULATE (
     'Inventory'[Week Type]  = "Current Week"
 )
 
-Dead Stock % = DIVIDE ( [Dead Stock Value], [Current Inventory Total] )
+Dead Stock % = DIVIDE ( [Dead Stock Value], [Value This Week] )
 
-Variance = [Value This Week] - [Value Last Week]
+% Share of Plant =
+DIVIDE (
+    [Total Value],
+    CALCULATE ( [Total Value], ALLEXCEPT ( 'Inventory', 'Inventory'[Plant Location] ) )
+)
 
 New Lots This Week =
 CALCULATE (
@@ -115,41 +120,19 @@ CALCULATE (
 
 ## Tools
 
-Power BI Desktop · DAX · Power Query · Excel · Python (synthetic data generation)
-
-## Repository structure
-
-```
-.
-├── README.md
-├── data/
-│   ├── inventory_stock_aging_combined_1000.csv   # both weeks (load this into Power BI)
-│   ├── inventory_stock_aging_500_current.csv
-│   └── inventory_stock_aging_last_week_500.csv
-├── report/
-│   ├── Inventory_Aging_Analysis.pbix             # data model + visuals
-│   └── Inventory_Aging_Report.pdf                # static export for quick viewing
-├── scripts/
-│   └── generate_inventory.py                     # reproducible data generator
-└── assets/
-    ├── overview.png
-    ├── aging-detail-matrix.png
-    └── scatter-dead-stock.png
-```
+Power BI Desktop · DAX · Power Query
 
 ## How to explore
 
-1. Open the [live dashboard](https://app.powerbi.com/view?r=eyJrIjoiNjI0NGJjOTAtYzFkMC00M2NmLThiN2MtMjNhZjNmZWIyN2RkIiwidCI6IjQ2YWNkMjk2LTczMGQtNDVlNy1iNWQ2LTMyY2M4NzE2ZmNjYiJ9), or the [PDF](assests/2-with_all_essentional_Variations.pdf).
-2. To inspect the model and DAX, open `report/Inventory_Aging_Analysis.pbix` in Power BI Desktop.
-3. To regenerate the data, run `python scripts/generate_inventory.py`.
+1. Open the [live interactive dashboard](https://app.powerbi.com/view?r=eyJrIjoiNjI0NGJjOTAtYzFkMC00M2NmLThiN2MtMjNhZjNmZWIyN2RkIiwidCI6IjQ2YWNkMjk2LTczMGQtNDVlNy1iNWQ2LTMyY2M4NzE2ZmNjYiJ9), or the page PDFs in the `assests` folder.
+2. To inspect the model and DAX, open `Inventory_Aging_Analysis.pbix` in Power BI Desktop.
 
 ## What I learned
 
-Building this end to end taught me more than any tutorial. A few honest ones: DAX filter
-context is unforgiving — renaming a column and a stray page filter both silently broke my
-measures until I rebuilt them with `REMOVEFILTERS`. I also had my variance logic backwards at
-first (reductions in stock were flagged red), and I learned to lead a dashboard with the
-insight — a dead-stock headline — instead of a wall of numbers.
+Building this end to end taught me more than any tutorial. DAX filter context is unforgiving —
+a renamed column and a stray page filter silently broke my measures until I rebuilt them with
+filter-context functions like `REMOVEFILTERS` and `ALLEXCEPT`. I also learned to lead a
+dashboard with the insight — a dead-stock headline — instead of a wall of numbers.
 
 ## Disclaimer
 
@@ -158,6 +141,4 @@ and values are fictional and do not represent any real organization.
 
 ## Author
 
-**[Your Name]** — [LinkedIn](https://linkedin.com/in/your-handle) · [GitHub](https://github.com/your-username)
-
-*If you found this useful, a ⭐ on the repo is appreciated.*
+**[Ajay Sharma]** — [LinkedIn](https://linkedin.com/in/your-handle) · [GitHub](https://github.com/Ajay8392)
