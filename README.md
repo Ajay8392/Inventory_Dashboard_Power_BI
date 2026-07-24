@@ -16,7 +16,7 @@
 
 ## Dashboard preview
 
-![Overview page](assets/overview.png)
+[View the Dashboard (PDF)](assests/1-Overview.pdf)
 
 ---
 
